@@ -1,73 +1,115 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SideBar } from "./SideBar";
+import UserService from "../services/UserService";
+import { useNavigate } from "react-router-dom";
+import PostService from "../services/PostService";
+import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
+import { app } from "../config/Config";
+import toast from "react-hot-toast";
+
+const storage = getStorage(app);
 
 const CreatePost = () => {
-  const [photo, setphoto] = useState(null);
-  const [caption, setCaption] = useState("");
+  const [loggedIn, setLoggedIn] = useState({});
+  const [post, setPost] = useState({
+    content: "",
+    mediaList: [],
+  });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handlephotoChange = (e) => {
-    const file = e.target.files[0];
-    setphoto(file);
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      // fetchUser();
+    }
+    setLoggedIn(JSON.parse(userData));
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPost({ ...post, [name]: value });
   };
 
-  const handleCaptionChange = (e) => {
-    setCaption(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("photo", photo);
-    formData.append("caption", caption);
 
-    fetch("YOUR_BACKEND_API_ENDPOINT", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Post created:", data);
+    if (post.content.trim() === "") {
+      toast.error("Post content cannot be empty");
+      return;
+    }
+
+    const files = e.target.photo.files;
+    if (files.length === 0) {
+      toast.error("Please select at least one image");
+      return;
+    }
+    if (files.length > 3) {
+      toast.error("Please select only up to 3 images");
+      return;
+    }
+
+    const mediaUrls = [];
+    for (const file of e.target.photo.files) {
+      const imageRef = ref(storage, `/images/${file.name}`);
+      await uploadBytes(imageRef, file);
+      const imageUrl = await getDownloadURL(imageRef);
+      mediaUrls.push(imageUrl);
+    }
+
+    const postData = {
+      ...post,
+      mediaList: mediaUrls,
+    };
+
+    PostService.savePost(postData, loggedIn.id)
+      .then((response) => {
+        console.log(response);
+        navigate("/home");
       })
       .catch((error) => {
-        console.error("Error creating post:", error);
+        console.log("error");
       });
   };
 
   return (
     <div>
-      <div className=" flex ">
+      <div className="flex">
         <SideBar />
-      <div className=" flex m-auto">
-      <div className=" border shadow-xl p-8 rounded-lg w-[500px]">
-          <h2 className="text-center text-2xl font-bold mb-4">Create a New Post</h2>
-          <form onSubmit={handleSubmit} className=" space-y-9">
-            <div className=" space-y-3">
-              <label htmlFor="caption">Caption:</label>
-              <textarea
-                id="caption"
-                value={caption}
-                onChange={handleCaptionChange}
-                className="w-full border-none p-2"
-              />
-            </div>
-            <div className=" flex flex-col space-y-6">
-              <label htmlFor="photo">Upload photo:</label>
-              <input
-                type="file"
-                id="photo"
-                accept="photo/*"
-                onChange={handlephotoChange}
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded"
-            >
-              Create Post
-            </button>
-          </form>
+        <div className="m-auto mt-24">
+          <div className="border shadow-xl p-8 rounded-lg w-[500px]">
+            <h2 className="text-center text-2xl font-bold mb-4">
+              Create a New Post
+            </h2>
+            <form className="space-y-9" onSubmit={handleSubmit}>
+              <div className="space-y-3">
+                <label htmlFor="caption">Caption:</label>
+                <textarea
+                  id="caption"
+                  name="content"
+                  onChange={(e) => handleChange(e)}
+                  className="w-full border-none p-2"
+                />
+              </div>
+              <div className="flex flex-col space-y-6">
+                <label htmlFor="photo">Upload photos:</label>
+                <input
+                  type="file"
+                  id="photo"
+                  accept="image/*"
+                  multiple // Allow multiple file selection
+                />
+              </div>
+              {error && <p className="text-red-500">{error}</p>}
+              <button
+                type="submit"
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                Create Post
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );

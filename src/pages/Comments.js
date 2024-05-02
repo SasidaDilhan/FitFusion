@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image1 from "../assets/gym2.jpg";
 import { NavBar } from "../components/NavBar";
 import { hasFormSubmit } from "@testing-library/user-event/dist/utils";
@@ -7,8 +7,14 @@ const Comments = () => {
     const [clicked, setClicked] = useState(false);
     const [showCommentSection, setShowCommentSection] = useState(false);
     const [inputValue, setInputValue] = useState("");
-    const [submittedValue, setSubmittedValue] = useState(""); // New state variable to store submitted value
-  
+    const [submittedValue, setSubmittedValue] = useState(""); 
+    const [user, setUser] = useState({});
+
+    useEffect(() => {
+      const user = localStorage.getItem("user");
+      setUser(JSON.parse(user));
+    }, []);
+  console.log(user)
     const handleClick = () => {
       setClicked(!clicked);
       // Toggle the display of the comment section
@@ -89,7 +95,7 @@ const Comments = () => {
                 className=" rounded-full w-10 h-10"
                 alt="user photo"
               />
-              Sasida Dilhan
+              {user.username}
             </div>
             <div className="   rounded-lg p-2">
             {submittedValue}

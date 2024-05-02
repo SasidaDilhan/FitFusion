@@ -5,6 +5,8 @@ import Post from "./Post";
 import UserServise from "../services/UserService";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { SideBar } from "./SideBar";
+import WorkoutStatusForm from "./WorkoutStatusForm ";
 
 const Home = () => {
   const [users, setUsers] = useState(null);
@@ -13,7 +15,7 @@ const Home = () => {
 
   const navigate = useNavigate();
   useEffect(() => {
-    const userData = localStorage.getItem("user-google");
+    const userData = localStorage.getItem("user");
     if (!userData) {
       fetchUser();
     }
@@ -25,7 +27,7 @@ const Home = () => {
       const res = await axios.get("http://localhost:8080/api/user", {
         withCredentials: true,
       });
-      localStorage.setItem("user-google", JSON.stringify(res.data));
+      localStorage.setItem("user", JSON.stringify(res.data));
     } catch (error) {
       if (error.response.status === 401) {
         navigate("/");
@@ -47,10 +49,13 @@ const Home = () => {
     fetchData();
   }, []);
   return (
-    <div className=" mt-[80px] bg-gray-400">
+    <div className=" mt-[70px] bg-gray-400 flex">
+      <SideBar />
       <NavBar user={user} />
-      <Follow users={users} />
-      <Post />
+      <div className=" m-auto ml-[700px]">
+        <Post />
+       
+      </div>
     </div>
   );
 };

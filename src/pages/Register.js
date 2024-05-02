@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import RegisterImage from "../assets/gym-register.jpg";
 import UserService from "../services/UserService";
+import { app, imageDb } from "../config/Config";
+import { v4 } from "uuid";
+import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
+
+const storage = getStorage(app);
 
 const Register = () => {
   const [user, setUser] = useState({
@@ -11,6 +16,7 @@ const Register = () => {
     username: "",
     password: "",
     phoneNumber: "",
+    profilePictureUrl: "",
     bio: "",
   });
   const navigate = useNavigate();
@@ -20,29 +26,92 @@ const Register = () => {
     setUser({ ...user, [e.target.name]: value });
   };
 
-  const saveUser = async (e) => {
+  //upload image
 
-    console.log(user)
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadedUrls, setUploadedUrls] = useState([]);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    // Clear errors when user selects a file
+    setErrors({ ...errors, profilePictureUrl: "" });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    UserService.saveUser(user)
-      .then((response) => {
-        console.log(response);
-        navigate("/");
-      })
-      .catch((error) => {
-        console.log("error");
-      });
+    const formErrors = {};
+
+    // Basic validation for profile picture
+    if (!selectedFile) {
+      formErrors.profilePictureUrl = "Profile Picture is required";
+    }
+
+    // Basic validation for other fields
+    if (!user.firstName.trim()) {
+      formErrors.firstName = "First Name is required";
+    }
+    if (!user.lastName.trim()) {
+      formErrors.lastName = "Last Name is required";
+    }
+    if (!user.email.trim()) {
+      formErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(user.email)) {
+      formErrors.email = "Email address is invalid";
+    }
+    // Add more validations as needed
+
+    setErrors(formErrors);
+
+    // If no errors, submit form
+    if (Object.keys(formErrors).length === 0) {
+      let imageUrl = null;
+
+      if (selectedFile) {
+        const imageRef = ref(storage, `/images/${selectedFile.name}`);
+        await uploadBytes(imageRef, selectedFile);
+        imageUrl = await getDownloadURL(imageRef);
+      }
+
+      const data = {
+        ...user,
+        profilePictureUrl: imageUrl,
+      };
+
+      UserService.saveUser(data)
+        .then((response) => {
+          console.log(response);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.log("error");
+        });
+    }
   };
 
   return (
     <div>
-      <div className="flex flex-row">
+      <div className="flex flex-row ">
         <div className="w-2/5">
-          <div className="bg-black bg-opacity-40 absolute inset-0 "></div>
+          <div className="bg-black  bg-opacity-40 absolute inset-0 "></div>
           <div className="">
-            <div className="bg-white h-[695px] shadow-md rounded-md p-8 w-100 relative z-10">
+            <div className="bg-white  h-screen shadow-md rounded-md p-8 w-100 relative z-10 ">
               <h2 className="text-xl font-semibold mb-4">Register</h2>
-              <form>
+              <form className=" space-y-10" onSubmit={handleSubmit}>
+                <div>
+                  <label>Profile Picture</label>
+                  <input type="file" onChange={handleFileChange} />
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt="Selected"
+                      style={{ maxWidth: "200px", maxHeight: "200px" }}
+                    />
+                  )}
+                </div>
                 <div className="flex flex-row gap-3">
                   <label htmlFor="firstname" className="block text-gray-700">
                     First Name
@@ -55,7 +124,10 @@ const Register = () => {
                       className="w-full px-3 mt-2 py-2 rounded-md border border-gray-300 mb-3 focus:outline-none focus:border-blue-500 bg-white bg-opacity-10"
                     />
                   </label>
-                  <label htmlFor="lastName" className="block text-gray-700">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-gray-700 ml-auto"
+                  >
                     Last Name
                     <input
                       type="text"
@@ -80,7 +152,7 @@ const Register = () => {
                     />
                   </label>
                 </div>
-                <div className="flex flex-row gap-3">
+                <div className="">
                   <label htmlFor="phoneNumber" className="block text-gray-700">
                     Phone Number
                     <input
@@ -92,6 +164,8 @@ const Register = () => {
                       className="w-full px-3 mt-2 py-2 rounded-md border border-gray-300 mb-3 focus:outline-none focus:border-blue-500 bg-white bg-opacity-10"
                     />
                   </label>
+                </div>
+                <div className="flex flex-row gap-3">
                   <label htmlFor="username" className="block text-gray-700">
                     User Name
                     <input
@@ -103,7 +177,10 @@ const Register = () => {
                       className="w-full px-3 mt-2 py-2 rounded-md border border-gray-300 mb-3 focus:outline-none focus:border-blue-500 bg-white bg-opacity-10"
                     />
                   </label>
-                  <label htmlFor="password" className="block text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-gray-700 ml-auto"
+                  >
                     Password
                     <input
                       type="password"
@@ -129,7 +206,6 @@ const Register = () => {
                 </div>
                 <button
                   type="submit"
-                  onClick={saveUser}
                   className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
                 >
                   Register
@@ -146,8 +222,8 @@ const Register = () => {
             </div>
           </div>
         </div>
-        <div className="w-3/5">
-          <img className="h-[695px] " src={RegisterImage} alt="Login Image" />
+        <div className="">
+          <img className=" h-screen " src={RegisterImage} alt="Login Image" />
         </div>
       </div>
     </div>

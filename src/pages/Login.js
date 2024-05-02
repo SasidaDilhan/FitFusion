@@ -25,7 +25,8 @@ const Login = () => {
       .then((response) => {
         console.log(response);
         navigate("/home");
-        alert(response.data);
+        alert("Welcom!");
+        localStorage.setItem("user", JSON.stringify(response.data));
       })
       .catch((error) => {
         console.log(error);
@@ -35,7 +36,7 @@ const Login = () => {
   return (
     <div className=" flex flex-row">
       <div className="w-3/5">
-        <img className="h-[695px] " src={LoginImage} alt="Login Image" />
+        <img className="h-screen " src={LoginImage} alt="Login Image" />
       </div>
       <div className="w-2/5">
         <div className="bg-black bg-opacity-40 absolute inset-0 "></div>

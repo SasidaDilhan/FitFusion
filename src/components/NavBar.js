@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   MobileNav,
@@ -13,6 +13,20 @@ import { Link } from "react-router-dom";
 
 export function NavBar({ user }) {
   const [openNav, setOpenNav] = React.useState(false);
+  const [loggedIn, setloggedIn] = useState({});
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      // fetchUser();
+    }
+    setloggedIn(JSON.parse(userData));
+  }, []);
+
+  const handleLogOut = async () => {
+    window.location.href = "http://localhost:8080/logout";
+    localStorage.removeItem("user");
+  };
 
   React.useEffect(() => {
     window.addEventListener(
@@ -49,9 +63,9 @@ export function NavBar({ user }) {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <a href="#" className="flex items-center">
-          Blocks
-        </a>
+        <Link to="/followers" className="flex items-center">
+          Followers
+        </Link>
       </Typography>
       <Typography
         as="li"
@@ -59,9 +73,7 @@ export function NavBar({ user }) {
         color="blue-gray"
         className="p-1 font-normal"
       >
-        <a href="#" className="flex items-center">
-          Docs
-        </a>
+        <button className="flex items-center" onClick={handleLogOut}>LogOut</button>
       </Typography>
     </ul>
   );
@@ -71,17 +83,17 @@ export function NavBar({ user }) {
       <Navbar className="sticky top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-4">
         <div className="flex items-center justify-between text-black">
           <Link to="/home">
-            <Typography className="mr-4 cursor-pointer py-1.5 font-medium">
-              Material Tailwind
+            <Typography className="mr-4 cursor-pointer py-1.5 font-medium text-xl">
+              Fit Fusion
             </Typography>
           </Link>
           <div className="flex items-center gap-4 text-black">
             <div className="mr-4 hidden lg:block">{navList}</div>
             <div className="flex items-center gap-x-1 ">
+              Hello! {loggedIn.username}
               <img
-                className="w-[40px] h-[40px] rounded-full"
-                src={Image1}
-                alt="Rounded Image"
+                className=" w-[40px] h-[40px] rounded-full "
+                src={loggedIn.profilePictureUrl}
               />
             </div>
           </div>

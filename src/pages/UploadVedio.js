@@ -41,7 +41,7 @@ const CreatePost = () => {
     <div>
       <div className=" flex ">
         <SideBar />
-      <div className=" flex m-auto">
+      <div className=" flex mt-24 m-auto">
       <div className=" border shadow-xl p-8 rounded-lg w-[500px]">
           <h2 className="text-center text-2xl font-bold mb-4">Create a New Post</h2>
           <form onSubmit={handleSubmit} className=" space-y-9">

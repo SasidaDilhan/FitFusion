@@ -30,12 +30,13 @@ export function SideBar() {
   };
 
   return (
-    <Card className="h-[calc(100vh)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
+    <Card className="h-[calc(100vh)] fixed w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5">
       <div className="mb-2 p-4">
         <Link to="/home">
-        <Typography variant="h5" color="blue-gray">
-          Fit Fusion
-        </Typography></Link>
+          <Typography variant="h5" color="blue-gray">
+            Fit Fusion
+          </Typography>
+        </Link>
       </div>
       <List className=" font-semibold">
         <Accordion
@@ -66,51 +67,17 @@ export function SideBar() {
             <AccordionBody className="py-1">
               <List className="p-0">
                 <Link to="/uploadVedio">
-                <ListItem>
-                  
-                  Upload Vedio
-                </ListItem></Link>
+                  <ListItem>Upload Vedio</ListItem>
+                </Link>
                 <Link to="/uploadPhoto">
-                <ListItem>
-                  
-                  Upload Photo
-                </ListItem></Link>
-              
+                  <ListItem>Upload Photo</ListItem>
+                </Link>
               </List>
             </AccordionBody>
           )}
         </Accordion>
-        <Accordion
-          open={open === 2}
-          icon={
-            <ChevronDownIcon
-              strokeWidth={2.5}
-              className={`mx-auto h-4 w-4 transition-transform ${
-                open === 2 ? "rotate-180" : ""
-              }`}
-            />
-          }
-        >
-          {open === 2 && (
-            <AccordionBody className="py-1">
-              <List className="p-0">
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  Orders
-                </ListItem>
-                <ListItem>
-                  <ListItemPrefix>
-                    <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                  </ListItemPrefix>
-                  Products
-                </ListItem>
-              </List>
-            </AccordionBody>
-          )}
-        </Accordion>
-        <ListItem>
+
+        {/* <ListItem>
           <ListItemPrefix>
             <InboxIcon className="h-5 w-5" />
           </ListItemPrefix>
@@ -124,25 +91,31 @@ export function SideBar() {
               className="rounded-full"
             />
           </ListItemSuffix>
-        </ListItem>
-        <ListItem>
-          <ListItemPrefix>
-            <UserCircleIcon className="h-5 w-5" />
-          </ListItemPrefix>
-          Profile
-        </ListItem>
-        <ListItem>
-          <ListItemPrefix>
-            <Cog6ToothIcon className="h-5 w-5" />
-          </ListItemPrefix>
-          Settings
-        </ListItem>
-        <ListItem>
-          <ListItemPrefix>
-            <PowerIcon className="h-5 w-5" />
-          </ListItemPrefix>
-          Log Out
-        </ListItem>
+        </ListItem> */}
+        <Link to="/profile">
+          <ListItem>
+            <ListItemPrefix>
+              <UserCircleIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Profile
+          </ListItem>
+        </Link>
+        <Link to="/status">
+          <ListItem>
+            <ListItemPrefix>
+              <Cog6ToothIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Workout Status
+          </ListItem>
+        </Link>
+        <Link to="/login">
+          <ListItem>
+            <ListItemPrefix>
+              <PowerIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Log Out
+          </ListItem>
+        </Link>
       </List>
     </Card>
   );

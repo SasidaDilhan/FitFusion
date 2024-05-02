@@ -12,6 +12,9 @@ import Comments from "../pages/Comments";
 import UploadVedio from "../pages/UploadVedio";
 import UploadPhoto from "../pages/UploadPhoto";
 import Profile from "../pages/Profile";
+import Followers from "../pages/Followers";
+import FriendProfile from "../pages/FriendProfile";
+import CreateStatus from "../pages/CreateStatus";
 
 const UserRouter = () => {
   return (
@@ -29,8 +32,10 @@ const UserRouter = () => {
           <Route path="/uploadVedio" element={<UploadVedio />} />
           <Route path="/uploadPhoto" element={<UploadPhoto />} />
           <Route path="/profile" element={<Profile />} />
-
+          <Route path="/followers" element={<Followers />} />
+          <Route path="/status" element={<CreateStatus />} />
           <Route path="/allUsers" element={<AllUsers />} />
+          <Route path="/friend/:id" element={<FriendProfile />} />
         </Routes>
       </BrowserRouter>
     </>

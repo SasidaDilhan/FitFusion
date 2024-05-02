@@ -2,6 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8080/users";
 // const BASE_URL_2 = "http://localhost:8080/users/register";
+const BASE_URL_FOLLOW = "http://localhost:8080/";
 
 class UserService {
   getUser() {
@@ -12,17 +13,24 @@ class UserService {
     return axios.get(BASE_URL + "/" + userId);
   }
 
-  followUsers(userID, follow) {
-    return axios.get(BASE_URL + "/" + userID + "/follow" + follow);
+  followUsers(userID, followerId) {
+    return axios.post(BASE_URL + "/" + userID + "/follow/" + followerId);
   }
 
   saveUser(user) {
     return axios.post(BASE_URL + "/register", user);
-    console.log(user)
   }
 
   loginUser(user) {
-    return axios.post(BASE_URL + "/login" ,user)
+    return axios.post(BASE_URL + "/login", user);
+  }
+
+  getfollowers(userID) {
+    return axios.get(BASE_URL_FOLLOW + "followers/" + userID);
+  }
+
+  checkFollowers(userID, followerId) {
+    return axios.get(BASE_URL + "/" + userID + "/follower/" + followerId);
   }
 }
 
